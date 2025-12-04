@@ -2,6 +2,12 @@
 
 # 🚀 Proyecto de Data Engineering: Dashboard de Ventas Globales en Microsoft Fabric (Star Schema)
 
+### Vista Previa del Dashboard
+
+El resultado final es un informe interactivo, limpio y eficiente, diseñado para la toma de decisiones:
+
+![Vista Previa del Dashboard Global Store](Dashboard%20Global%20Store.png)
+
 ## 🎯 Objetivo del Proyecto
 
 Este proyecto demuestra la capacidad para diseñar, construir y desplegar una solución completa de Business Intelligence (BI) sobre una plataforma moderna (Microsoft Fabric). El objetivo principal fue transformar datos de ventas brutos y caóticos en un **Modelo de Datos Star Schema** eficiente y un dashboard interactivo, capaz de impulsar la toma de decisiones estratégicas.
