@@ -1,91 +1,213 @@
-# Tech_GlobalStore_Retail_Analysis-Fabric
+# 🏪 Global Store Retail Analysis — Star Schema on Fabric
 
-# 🚀 Proyecto de Data Engineering: Dashboard de Ventas Globales en Microsoft Fabric (Star Schema)
+**Enterprise BI Solution | PySpark ETL | Star Schema | Power BI Dashboard**
 
-### Vista Previa del Dashboard
-
-El resultado final es un informe interactivo, limpio y eficiente, diseñado para la toma de decisiones:
-
-![Vista Previa del Dashboard Global Store](Dashboard%20Global%20Store.png)
-
-## 🎯 Objetivo del Proyecto
-
-Este proyecto demuestra la capacidad para diseñar, construir y desplegar una solución completa de Business Intelligence (BI) sobre una plataforma moderna (Microsoft Fabric). El objetivo principal fue transformar datos de ventas brutos y caóticos en un **Modelo de Datos Star Schema** eficiente y un dashboard interactivo, capaz de impulsar la toma de decisiones estratégicas.
+[![Microsoft Fabric](https://img.shields.io/badge/Microsoft_Fabric-F34F21?logo=microsoft)](https://fabric.microsoft.com/)
+[![PySpark](https://img.shields.io/badge/PySpark-E3492F?logo=apachespark)](https://spark.apache.org/)
+[![Power BI](https://img.shields.io/badge/Power_BI-F2C811?logo=powerbi)](https://powerbi.microsoft.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 🛠️ Arquitectura y Tecnologías
+## 📋 Overview
 
-| Componente | Tecnología | Propósito |
-| :--- | :--- | :--- |
-| **ETL & Data Transformation** | **PySpark (Notebooks de Fabric)** | Procesamiento de datos, limpieza, y aplicación de lógica de negocio (corrección de unicidad y nulidad). |
-| **Data Lakehouse** | **Delta Lake / OneLake** | Almacenamiento eficiente y versionado de las tablas finales (Fact y Dimensiones). |
-| **Modelado de Datos** | **Power BI / Modelo Semántico de Fabric** | Creación del Star Schema (relaciones 1:N) y definición de las métricas de negocio (DAX). |
-| **Visualización & BI** | **Power BI Service (Fabric)** | Creación del dashboard final interactivo y publicable. |
+Complete enterprise BI solution transforming chaotic raw sales data into an efficient **Star Schema** model on Microsoft Fabric. Demonstrates end-to-end data engineering with PySpark ETL, Delta Lake storage, and comprehensive Power BI analytics for retail performance tracking.
+
+This project showcases production-ready patterns for data integrity resolution (nulls, duplicates) and business metrics implementation.
 
 ---
 
-## 📝 Star Schema: Modelo de Datos
+## 💼 Business Impact
 
-El modelo se diseñó en torno a una tabla central de hechos (`Fact_sales`) vinculada a cuatro dimensiones, garantizando la velocidad y precisión del análisis dimensional:
+- **Strategic Decision-Making**: 4 KPIs and 7 analytical visualizations for sales performance tracking
+- **Customer Value Insights**: RFM analysis enables targeted marketing strategies
+- **Logistics Efficiency**: Delivery performance metrics identify optimization opportunities
+- **Data Quality Resolution**: Null/duplicate handling ensures reliable analytics
 
-| Tabla de Hechos | Claves Foráneas / Métricas |
+---
+
+## 🛠️ Technical Stack
+
+| Category | Technologies |
 | :--- | :--- |
-| `Fact_sales` | `Order_Date` (FK), `Product_ID` (FK), `Customer_ID` (FK), `Postal_Code` (FK), `Sales` (Medida) |
+| **Platform** | Microsoft Fabric |
+| **Data Engineering** | PySpark, Dataflows Gen2 |
+| **Data Storage** | Delta Lake (versioned) |
+| **Data Modeling** | Star Schema (Fact/Dimensions) |
+| **BI & Analytics** | Power BI, DAX |
+| **Query Language** | SQL, DAX |
 
-| Dimensiones | Clave Primaria (PK) |
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                  RETAIL ANALYTICS PIPELINE                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  RAW DATA LAYER                                             │
+│  └─→ Chaotic sales data (nulls, duplicates, inconsistencies)│
+│                                                              │
+│  ETL LAYER (PySpark)                                        │
+│  └─→ Data cleaning & validation                             │
+│      - Null handling                                        │
+│      - Duplicate resolution                                 │
+│      - Type correction                                      │
+│                                                              │
+│  MODELING LAYER (Star Schema)                               │
+│  └─→ Fact_Sales                                             │
+│      → Dim_Customer, Dim_Product, Dim_Date, Dim_Store       │
+│                                                              │
+│  STORAGE LAYER (Delta Lake)                                 │
+│  └─→ Versioned tables with ACID guarantees                  │
+│                                                              │
+│  CONSUMPTION LAYER (Power BI)                               │
+│  └─→ DAX measures, interactive dashboard                    │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Key Features
+
+### PySpark ETL Pipeline
+- **Data Integrity**: Null/duplicate resolution
+- **Type Correction**: Consistent data types across columns
+- **Validation Rules**: Business logic enforcement
+
+### Star Schema Model
+| Table Type | Tables |
 | :--- | :--- |
-| `Dim_Date` | `Date` |
-| `Dim_Product` | `Product_ID` |
-| `Dim_customer` | `Customer_ID` |
-| `Dim_Geography` | `Postal_Code` |
+| **Fact Table** | Fact_Sales (transactions, amounts, quantities) |
+| **Dimension Tables** | Dim_Customer, Dim_Product, Dim_Date, Dim_Store |
+
+### DAX Business Metrics
+- **Total Revenue**: Sum of sales amounts
+- **Average Order Value**: Revenue per transaction
+- **Customer Count**: Unique customers
+- **Product Performance**: Top/bottom sellers
 
 ---
 
-## 🛑 Desafíos Críticos Resueltos (Integridad de Datos)
+## 📊 Results & Metrics
 
-El mayor desafío del proyecto fue garantizar la integridad del modelo. La capa de PySpark se modificó progresivamente para resolver fallos críticos en las claves primarias (PK) que rompían las relaciones 1:N:
-
-1.  **Duplicidad de Claves (Product & Geography):** Se resolvió mediante la función `groupBy().agg(first(...))` en PySpark para asegurar que `Product_ID` y `Postal_Code` fueran valores únicos en sus respectivas dimensiones.
-2.  **Valores Nulos en Claves Primarias:** Se resolvió aplicando filtros (`.filter(col("Clave").isNotNull())`) en las dimensiones `Dim_Date` y `Dim_Geography` para eliminar cualquier registro nulo de las PK, ya que no se permiten valores en blanco en el lado 'uno' de una relación.
-
-*(El código final que resuelve estos problemas se encuentra en el archivo `Notebook 1.py`.)*
-
----
-
-## 📊 Dashboard de BI: Resultados del Análisis
-
-El dashboard final está diseñado para la toma de decisiones, compuesto por 4 KPIs de rendimiento y 7 visualizaciones analíticas, todas interactivas a través de segmentadores de Año y Región.
-
-### Indicadores Clave (KPIs)
-
-* **Total Sales**
-* **Average Revenue per Order**
-* **Sales per Customer**
-* **Orders per Customer**
-
-### Visualizaciones Estratégicas
-
-| Título del Gráfico | Enfoque de Análisis |
+| Metric | Value |
 | :--- | :--- |
-| **Sales by Product Category** | Analiza la rentabilidad por portafolio de productos. |
-| **Historical Sales Trend** | Identifica el crecimiento interanual y la estacionalidad del negocio. |
-| **Total Sales by State / Top 10 States** | Muestra el rendimiento geográfico y los *drivers* principales por ubicación. |
-| **Sales Distribution by Shipping Mode** | Evalúa la eficiencia logística y el costo asociado a cada modo de envío. |
-| **Revenue by Customer Segment** | Segmenta las ventas por tipo de cliente (Marketing). |
-| **Customer Value and Frequency Analysis** | Utiliza un Scatter Plot avanzado para identificar a los clientes más valiosos (RFM). |
+| **KPIs Implemented** | 4 core metrics |
+| **Visualizations** | 7 analytical charts |
+| **Data Quality Issues Resolved** | Nulls, duplicates, type mismatches |
+| **Schema Type** | Star Schema (dimensional modeling) |
 
 ---
 
-### 🌐 Ver el Dashboard Interactivo
+## 📁 Project Structure
 
-Puedes explorar la solución final y la interacción en el siguiente enlace público:
-
-➡️ **(https://app.fabric.microsoft.com/reportEmbed?reportId=ef628e11-1d49-421b-8a9d-b82867bf8d37&autoAuth=true&ctid=5153b8f5-97d1-4e1b-827f-2fb1bad4128f)**
+```
+Tech_GlobalStore_Retail_Analysis-Fabric/
+├── data/                              # Raw and processed data files
+├── notebooks/                         # PySpark ETL notebooks
+├── powerbi/                           # Power BI report files
+├── docs/                              # Documentation
+└── README.md                          # Project documentation
+```
 
 ---
 
-### 🙋 Contribución / Contacto
+## 🔧 Setup & Installation
 
-* **Autor:** Nicolas Zalazar
-* **LinkedIn:** (https://www.linkedin.com/in/nicolas-zalazar-63340923a)
+### Prerequisites
+- Microsoft Fabric capacity (F32 or higher)
+- Power BI Desktop (latest version)
+- Fabric workspace permissions
+
+### Deployment Steps
+
+```bash
+# Clone the repository
+git clone https://github.com/Nicolenki7/Tech_GlobalStore_Retail_Analysis-Fabric.git
+cd Tech_GlobalStore_Retail_Analysis-Fabric
+
+# 1. Create Fabric Workspace
+# 2. Upload raw data to Lakehouse
+# 3. Run PySpark ETL notebooks
+# 4. Create Star Schema model
+# 5. Import Power BI report
+# 6. Configure DAX measures
+```
+
+---
+
+## 📈 Usage
+
+### Dashboard Features
+
+| Visualization | Purpose |
+| :--- | :--- |
+| **Revenue Trend** | Sales performance over time |
+| **Top Products** | Best-selling items by revenue |
+| **Customer Segments** | RFM-based customer grouping |
+| **Geographic Analysis** | Sales by region/store |
+| **Delivery Performance** | On-time delivery metrics |
+
+### Interactive Filters
+- **Date Range**: Custom time period selection
+- **Product Category**: Filter by product type
+- **Store Location**: Regional analysis
+- **Customer Segment**: RFM tier filtering
+
+---
+
+## 🎯 Key Learnings
+
+- **Star Schema** simplifies DAX calculations and improves query performance
+- **PySpark** efficiently handles large-scale data cleaning operations
+- **Delta Lake** provides versioning and ACID guarantees for production pipelines
+- **RFM Analysis** enables actionable customer segmentation
+
+---
+
+## 🔮 Future Enhancements
+
+- [ ] Real-time sales ingestion (KQL Database)
+- [ ] Predictive inventory recommendations (ML)
+- [ ] Customer churn prediction model
+- [ ] Automated data quality monitoring
+- [ ] Mobile-optimized dashboard layout
+
+---
+
+## 🔗 Links
+
+| Resource | URL |
+| :--- | :--- |
+| **Repository** | https://github.com/Nicolenki7/Tech_GlobalStore_Retail_Analysis-Fabric |
+| **Live Dashboard** | [View in Fabric](https://app.fabric.microsoft.com/reportEmbed?reportId=ef628e11-1d49-421b-8a9d-b82867bf8d37) |
+
+---
+
+## 📝 Resumen en Español
+
+Solución completa de BI empresarial que transforma datos de ventas caóticos en un modelo **Star Schema** eficiente usando **PySpark ETL** y **Delta Lake**. Incluye 4 KPIs principales, 7 visualizaciones analíticas, y análisis RFM para segmentación de clientes. El dashboard permite seguimiento de rendimiento de ventas, análisis geográfico, y métricas de eficiencia logística.
+
+---
+
+## 📄 License
+
+MIT License — Feel free to fork, modify, and use for personal or commercial projects.
+
+---
+
+## 👤 Author
+
+**Nicolás Zalazar** | Senior Data Engineer & Microsoft Fabric Specialist
+
+- GitHub: [@Nicolenki7](https://github.com/Nicolenki7)
+- LinkedIn: [nicolas-zalazar-63340923a](https://www.linkedin.com/in/nicolas-zalazar-63340923a)
+- Portfolio: [nicolenki7.github.io/Portfolio](https://nicolenki7.github.io/Portfolio/)
+- Email: zalazarn046@gmail.com
+
+---
+
+*Last Updated: March 2026*
