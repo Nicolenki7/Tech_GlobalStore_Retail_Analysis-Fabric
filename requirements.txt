@@ -1,0 +1,7 @@
+# Tech_GlobalStore_Retail_Analysis-Fabric - runtime dependencies
+# ETL_Analysis.py necesita una SparkSession activa (Fabric/Databricks) o local con pyspark instalado.
+pyspark>=3.4
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+seaborn>=0.13
