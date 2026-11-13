@@ -30,13 +30,24 @@ for column in df_clean.columns:
     df_clean = df_clean.withColumnRenamed(column, new_column)
 
 # Conversión de tipos de datos cruciales
+# 🛑 LAS FECHAS VIENEN EN FORMATO DÍA/MES/AÑO (dd/MM/yyyy), no mes/día.
+# Con "MM/dd/yyyy" Spark no falla: devuelve null para toda fila cuyo primer
+# campo sea mayor que 12, que en este archivo son 5.841 de 9.800 (el 60 %).
+# Se pierden en silencio la Dim_Date y toda la tendencia temporal.
+FMT_FECHA = "dd/MM/yyyy"
+
+# Conversión de tipos de datos cruciales
 df_clean = df_clean.withColumn("Sales", col("Sales").cast("double")) \
-                 .withColumn("Order_Date", to_date(col("Order_Date"), "MM/dd/yyyy")) \
-                 .withColumn("Ship_Date", to_date(col("Ship_Date"), "MM/dd/yyyy")) \
+                 .withColumn("Order_Date", to_date(col("Order_Date"), FMT_FECHA)) \
+                 .withColumn("Ship_Date", to_date(col("Ship_Date"), FMT_FECHA)) \
                  .withColumn("Postal_Code", col("Postal_Code").cast("string")) \
                  .withColumn("Row_ID", col("Row_ID").cast("long"))
 
 print("✅ 2. Tipos de datos estandarizados y nombres de columnas corregidos.")
+
+# Control explícito: si el formato de fecha fuera el equivocado, aquí se ve.
+nulos_fecha = df_clean.filter(col("Order_Date").isNull()).count()
+print(f"   Fechas de pedido ilegibles: {nulos_fecha} (con {FMT_FECHA} deben ser 0)")
 
 # --- 3. CREACIÓN DE TABLAS DE DIMENSIÓN (CORRECCIÓN DE INTEGRIDAD) ---
 
@@ -73,7 +84,8 @@ print("✅ Dim_Geography corregida.")
 
 # 🛑 DIMENSIÓN: FECHAS (Dim_Date) - SOLUCIÓN A NULOS
 # 1. Filtramos los nulos en Order_Date.
-Max_Año_Datos = df_clean.select(year(col("Order_Date"))).agg({"year(Order_Date)": "max"}).collect()[0][0]
+Max_Año_Datos = df_clean.filter(col("Order_Date").isNotNull()) \
+                        .agg({"Order_Date": "max"}).collect()[0][0].year
 
 df_dim_date = (
     df_clean.filter(col("Order_Date").isNotNull()) 
@@ -87,7 +99,6 @@ df_dim_date = (
                            .otherwise(4))
     .withColumn("Día_de_la_semana", date_format(col("Date"), "EEEE"))
     .withColumn("Es_Último_Año", when(year(col("Date")) == Max_Año_Datos, lit(True)).otherwise(lit(False)))
-    .withColumnRenamed("Nombre_del_mes", "Nombre_del_mes")
 )
 print("✅ Dim_Date corregida.")
 
@@ -124,7 +135,6 @@ print("🎉 4. ¡Proceso ETL completado! Tablas Delta escritas/sobrescritas.")
 print("\n--- Generando Replicas de Visualización Estática (Matplotlib/Seaborn) ---")
 
 # Convertimos la tabla limpia principal a Pandas para el análisis y visualización local
-# Usamos un muestreo si el dataset es muy grande, pero aquí usamos toPandas() completo.
 df_pd = df_clean.toPandas()
 
 plt.style.use('seaborn-v0_8-whitegrid')
