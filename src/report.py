@@ -71,13 +71,20 @@ PLANTILLA = """<!doctype html><html lang="es"><head><meta charset="utf-8">
 <section><h2>Qué no dice este informe</h2><p class="s">{lim_sub}</p><ul>{limitaciones}</ul></section>
 <footer>Generado por <code>src/report.py</code> a partir de <code>{fuente}</code>. Sin dependencias,
 sin CDN: cada cifra de esta página sale de los datos del repositorio.{pie}</footer>
-</div><script>const DATOS={datos};{js}</script></body></html>
-"""
+</div><script>const DATOS={datos};{js}</script></body></html>"""
 
 
 def num(valor, dec=0):
     """Número en formato español: 2.261.537, no 2,261,537."""
     return f"{valor:,.{dec}f}".replace(",", "@").replace(".", ",").replace("@", ".")
+
+
+def _json_lineas(filas, graficos):
+    """JSON con una fila por línea: se lee en el diff y no rompe la revisión."""
+    def compacto(o):
+        return json.dumps(o, ensure_ascii=False, separators=(",", ":"))
+    return ('{"filas":[\n' + ",\n".join(compacto(f) for f in filas)
+            + '\n],"graficos":' + compacto(graficos) + "}")
 
 
 def escribir(ruta, *, eyebrow, titulo, pregunta, kpis, filtros, graficos, filas,
@@ -105,15 +112,14 @@ def escribir(ruta, *, eyebrow, titulo, pregunta, kpis, filtros, graficos, filas,
         secciones.append(f"<section><h2>{html.escape(tabla['titulo'])}</h2>"
                          f"<p class='s'>{html.escape(tabla['subtitulo'])}</p>"
                          f"<table><thead><tr>{cab}</tr></thead><tbody>{cuerpo}</tbody></table></section>")
-    ruta.write_text(PLANTILLA.format(
+    texto = PLANTILLA.format(
         titulo=html.escape(titulo), eyebrow=html.escape(eyebrow),
         pregunta=html.escape(pregunta), kpis=kpis_html, filtros=filtros_html,
         secciones="\n".join(secciones), css=CSS, js=JS,
-        datos=json.dumps({"filas": filas, "graficos": graficos},
-                         ensure_ascii=False, separators=(",", ":")),
+        datos=_json_lineas(filas, graficos),
         metodo="".join(f"<li>{html.escape(m)}</li>" for m in metodo),
         limitaciones="".join(f"<li>{html.escape(m)}</li>" for m in limitaciones),
         metodo_sub=html.escape(metodo_sub), lim_sub=html.escape(lim_sub),
-        fuente=html.escape(fuente), pie=(" " + html.escape(pie)) if pie else ""),
-        encoding="utf-8")
+        fuente=html.escape(fuente), pie=(" " + html.escape(pie)) if pie else "")
+    ruta.write_text(texto.rstrip("\n"), encoding="utf-8")
     return ruta
