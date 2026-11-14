@@ -26,15 +26,7 @@ jobs:
           from nbformat.v4 import new_markdown_cell
 
           RUTA = 'notebooks/globalstore_retail_colab.ipynb'
-          TEXTO = '''[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nicolenki7/Tech_GlobalStore_Retail_Analysis-Fabric/blob/main/notebooks/globalstore_retail_colab.ipynb)
-
-> **En 30 segundos:** 2,26 millones de venta en 4.922 pedidos, con Technology a la cabeza y un ticket medio de 459.
->
-> - 9.800 líneas de pedido sobre 793 clientes
-> - Technology: 36,6 % de la venta
-> - Envío: de 0 a 5 días de media según el modo
->
-> Los resultados ya están ejecutados: no hace falta correr nada para leerlos.'''
+          TEXTO = '[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Nicolenki7/Tech_GlobalStore_Retail_Analysis-Fabric/blob/main/notebooks/globalstore_retail_colab.ipynb)\n\n> **En 30 segundos:** 2,26 millones de venta en 4.922 pedidos, con Technology a la cabeza y un ticket medio de 459.\n>\n> - 9.800 líneas de pedido sobre 793 clientes\n> - Technology: 36,6 % de la venta\n> - Envío: de 0 a 5 días de media según el modo\n>\n> Los resultados ya están ejecutados: no hace falta correr nada para leerlos.'
 
           nb = nbformat.read(RUTA, as_version=4)
           primero = ''.join(nb.cells[0].source) if nb.cells else ''
